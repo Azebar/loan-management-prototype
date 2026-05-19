@@ -15,7 +15,7 @@ RUN ./gradlew --no-daemon clean bootJar -x test
 FROM eclipse-temurin:25-jre
 
 WORKDIR /app
-RUN useradd --system --uid 1000 spring && chown spring:spring /app
+RUN useradd --system --uid 10001 spring && chown spring:spring /app
 USER spring
 
 COPY --from=build /app/build/libs/app.jar /app/app.jar
