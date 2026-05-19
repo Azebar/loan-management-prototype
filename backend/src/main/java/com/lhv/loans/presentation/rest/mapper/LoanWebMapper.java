@@ -8,12 +8,12 @@ import com.lhv.loans.presentation.rest.dto.CreateLoanRequest;
 import com.lhv.loans.presentation.rest.dto.LoanResponse;
 import com.lhv.loans.presentation.rest.dto.ScheduleResponse;
 import com.lhv.loans.presentation.rest.dto.UpdateLoanRequest;
+import lombok.experimental.UtilityClass;
 
-public final class LoanWebMapper {
+@UtilityClass
+public class LoanWebMapper {
 
-    private LoanWebMapper() {}
-
-    public static CreateLoanCommand toCommand(CreateLoanRequest request) {
+    public CreateLoanCommand toCommand(CreateLoanRequest request) {
         return CreateLoanCommand.builder()
                 .borrowerName(request.borrowerName())
                 .type(request.type())
@@ -25,7 +25,7 @@ public final class LoanWebMapper {
                 .build();
     }
 
-    public static UpdateLoanCommand toCommand(UpdateLoanRequest request) {
+    public UpdateLoanCommand toCommand(UpdateLoanRequest request) {
         return UpdateLoanCommand.builder()
                 .borrowerName(request.borrowerName())
                 .type(request.type())
@@ -37,7 +37,7 @@ public final class LoanWebMapper {
                 .build();
     }
 
-    public static LoanResponse toResponse(Loan loan) {
+    public LoanResponse toResponse(Loan loan) {
         return LoanResponse.builder()
                 .id(loan.id())
                 .borrowerName(loan.borrowerName())
@@ -52,7 +52,7 @@ public final class LoanWebMapper {
                 .build();
     }
 
-    public static ScheduleResponse toResponse(RepaymentSchedule schedule) {
+    public ScheduleResponse toResponse(RepaymentSchedule schedule) {
         var installments = schedule.installments().stream()
                 .map(installment -> ScheduleResponse.Installment.builder()
                         .periodNumber(installment.periodNumber())

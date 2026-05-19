@@ -1,15 +1,13 @@
 package com.lhv.loans.presentation.rest;
 
 import com.lhv.loans.application.service.LoanApplicationService;
-import com.lhv.loans.domain.model.RepaymentSchedule;
+import com.lhv.loans.presentation.rest.csv.ScheduleCsvWriter;
 import com.lhv.loans.presentation.rest.dto.CreateLoanRequest;
 import com.lhv.loans.presentation.rest.dto.LoanResponse;
 import com.lhv.loans.presentation.rest.dto.ScheduleResponse;
 import com.lhv.loans.presentation.rest.dto.UpdateLoanRequest;
 import com.lhv.loans.presentation.rest.mapper.LoanWebMapper;
-import com.opencsv.CSVWriter;
 import jakarta.validation.Valid;
-import java.io.StringWriter;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoanController {
 
     private final LoanApplicationService loans;
+    private final ScheduleCsvWriter csvWriter;
 
     @GetMapping
     public List<LoanResponse> list() {
@@ -68,29 +67,11 @@ public class LoanController {
 
     @GetMapping(value = "/{loanId}/schedule.csv", produces = "text/csv")
     public ResponseEntity<String> scheduleCsv(@PathVariable UUID loanId) {
-        RepaymentSchedule schedule = loans.schedule(loanId);
-        StringWriter csvBuffer = new StringWriter();
-        try (CSVWriter csvWriter = new CSVWriter(csvBuffer)) {
-            csvWriter.writeNext(new String[]{
-                    "period", "dueDate", "principal", "interest", "totalPayment", "remainingBalance"
-            });
-            for (var installment : schedule.installments()) {
-                csvWriter.writeNext(new String[]{
-                        Integer.toString(installment.periodNumber()),
-                        installment.dueDate().toString(),
-                        installment.principalAmount().toPlainString(),
-                        installment.interestAmount().toPlainString(),
-                        installment.totalPayment().toPlainString(),
-                        installment.remainingBalance().toPlainString()
-                });
-            }
-        } catch (java.io.IOException exception) {
-            throw new IllegalStateException("Failed to render CSV", exception);
-        }
+        var csv = csvWriter.write(loans.schedule(loanId));
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("text/csv"))
                 .header("Content-Disposition",
                         "attachment; filename=\"schedule-" + loanId + ".csv\"")
-                .body(csvBuffer.toString());
+                .body(csv);
     }
 }

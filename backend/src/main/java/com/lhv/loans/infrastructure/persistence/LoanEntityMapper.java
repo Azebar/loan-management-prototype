@@ -1,12 +1,12 @@
 package com.lhv.loans.infrastructure.persistence;
 
 import com.lhv.loans.domain.model.Loan;
+import lombok.experimental.UtilityClass;
 
-final class LoanEntityMapper {
+@UtilityClass
+class LoanEntityMapper {
 
-    private LoanEntityMapper() {}
-
-    static LoanEntity toEntity(Loan loan) {
+    LoanEntity toEntity(Loan loan) {
         return LoanEntity.builder()
                 .id(loan.id())
                 .borrowerName(loan.borrowerName())
@@ -21,7 +21,7 @@ final class LoanEntityMapper {
                 .build();
     }
 
-    static Loan toDomain(LoanEntity entity) {
+    Loan toDomain(LoanEntity entity) {
         return Loan.builder()
                 .id(entity.getId())
                 .borrowerName(entity.getBorrowerName())
