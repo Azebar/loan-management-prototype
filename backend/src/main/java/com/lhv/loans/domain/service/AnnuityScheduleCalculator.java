@@ -10,17 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
-/**
- * Standard annuity loan: equal periodic payments. Each installment is split
- * into a growing principal share and a shrinking interest share.
- *
- * <p>Formula: {@code A = P · r / (1 − (1 + r)⁻ⁿ)} where {@code r} is the monthly
- * rate and {@code n} the number of periods. Zero-rate is handled separately
- * (no division by zero): {@code A = P / n}.
- *
- * <p>To guarantee full amortization despite rounding, the final installment's
- * principal is forced to the residual balance.
- */
 @Component
 public class AnnuityScheduleCalculator implements RepaymentScheduleCalculator {
 
@@ -66,24 +55,24 @@ public class AnnuityScheduleCalculator implements RepaymentScheduleCalculator {
             totalInterest = totalInterest.add(interest);
             totalPaid = totalPaid.add(payment);
 
-            installments.add(new ScheduleInstallment(
-                    i,
-                    dueDate,
-                    principalPart,
-                    interest,
-                    payment,
-                    MoneyMath.money(balance)
-            ));
+            installments.add(ScheduleInstallment.builder()
+                    .periodNumber(i)
+                    .dueDate(dueDate)
+                    .principalAmount(principalPart)
+                    .interestAmount(interest)
+                    .totalPayment(payment)
+                    .remainingBalance(MoneyMath.money(balance))
+                    .build());
         }
 
-        return new RepaymentSchedule(
-                loan.id(),
-                ScheduleType.ANNUITY,
-                installments,
-                MoneyMath.money(totalPrincipal),
-                MoneyMath.money(totalInterest),
-                MoneyMath.money(totalPaid)
-        );
+        return RepaymentSchedule.builder()
+                .loanId(loan.id())
+                .scheduleType(ScheduleType.ANNUITY)
+                .installments(installments)
+                .totalPrincipal(MoneyMath.money(totalPrincipal))
+                .totalInterest(MoneyMath.money(totalInterest))
+                .totalPaid(MoneyMath.money(totalPaid))
+                .build();
     }
 
     private static BigDecimal computeAnnuity(BigDecimal principal, BigDecimal r, int n) {

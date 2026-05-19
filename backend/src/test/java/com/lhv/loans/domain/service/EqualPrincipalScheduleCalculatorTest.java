@@ -15,7 +15,6 @@ class EqualPrincipalScheduleCalculatorTest {
     void principal_share_is_constant_except_for_final_rounding_adjust() {
         var s = calc.calculate(loan(new BigDecimal("12000.00"), 12, new BigDecimal("6.00"), ScheduleType.EQUAL_PRINCIPAL));
 
-        // First 11 are flat 1000.00; final one absorbs any residue.
         for (int i = 0; i < 11; i++) {
             assertThat(s.installments().get(i).principalAmount()).isEqualByComparingTo("1000.00");
         }

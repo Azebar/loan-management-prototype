@@ -5,21 +5,15 @@ import com.lhv.loans.domain.port.LoanRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
-/**
- * Adapter that satisfies the domain port using Spring Data JPA. The domain
- * never references this class directly.
- */
 @Repository
+@RequiredArgsConstructor
 public class LoanRepositoryAdapter implements LoanRepository {
 
     private final LoanJpaRepository jpa;
-
-    public LoanRepositoryAdapter(LoanJpaRepository jpa) {
-        this.jpa = jpa;
-    }
 
     @Override
     public Loan save(Loan loan) {

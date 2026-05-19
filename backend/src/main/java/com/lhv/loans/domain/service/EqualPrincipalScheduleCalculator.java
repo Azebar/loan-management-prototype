@@ -10,12 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
-/**
- * Equal-principal schedule: every period repays the same principal amount,
- * so total payments decrease as the outstanding balance shrinks.
- *
- * <p>The final installment absorbs any rounding remainder.
- */
 @Component
 public class EqualPrincipalScheduleCalculator implements RepaymentScheduleCalculator {
 
@@ -49,23 +43,23 @@ public class EqualPrincipalScheduleCalculator implements RepaymentScheduleCalcul
             totalInterest = totalInterest.add(interest);
             totalPaid = totalPaid.add(payment);
 
-            installments.add(new ScheduleInstallment(
-                    i,
-                    dueDate,
-                    principalPart,
-                    interest,
-                    payment,
-                    MoneyMath.money(balance)
-            ));
+            installments.add(ScheduleInstallment.builder()
+                    .periodNumber(i)
+                    .dueDate(dueDate)
+                    .principalAmount(principalPart)
+                    .interestAmount(interest)
+                    .totalPayment(payment)
+                    .remainingBalance(MoneyMath.money(balance))
+                    .build());
         }
 
-        return new RepaymentSchedule(
-                loan.id(),
-                ScheduleType.EQUAL_PRINCIPAL,
-                installments,
-                MoneyMath.money(totalPrincipal),
-                MoneyMath.money(totalInterest),
-                MoneyMath.money(totalPaid)
-        );
+        return RepaymentSchedule.builder()
+                .loanId(loan.id())
+                .scheduleType(ScheduleType.EQUAL_PRINCIPAL)
+                .installments(installments)
+                .totalPrincipal(MoneyMath.money(totalPrincipal))
+                .totalInterest(MoneyMath.money(totalInterest))
+                .totalPaid(MoneyMath.money(totalPaid))
+                .build();
     }
 }

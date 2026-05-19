@@ -14,61 +14,62 @@ public final class LoanWebMapper {
     private LoanWebMapper() {}
 
     public static CreateLoanCommand toCommand(CreateLoanRequest req) {
-        return new CreateLoanCommand(
-                req.borrowerName(),
-                req.type(),
-                req.amount(),
-                req.termMonths(),
-                req.annualInterestRatePercent(),
-                req.scheduleType(),
-                req.startDate()
-        );
+        return CreateLoanCommand.builder()
+                .borrowerName(req.borrowerName())
+                .type(req.type())
+                .amount(req.amount())
+                .termMonths(req.termMonths())
+                .annualInterestRatePercent(req.annualInterestRatePercent())
+                .scheduleType(req.scheduleType())
+                .startDate(req.startDate())
+                .build();
     }
 
     public static UpdateLoanCommand toCommand(UpdateLoanRequest req) {
-        return new UpdateLoanCommand(
-                req.borrowerName(),
-                req.type(),
-                req.amount(),
-                req.termMonths(),
-                req.annualInterestRatePercent(),
-                req.scheduleType(),
-                req.startDate()
-        );
+        return UpdateLoanCommand.builder()
+                .borrowerName(req.borrowerName())
+                .type(req.type())
+                .amount(req.amount())
+                .termMonths(req.termMonths())
+                .annualInterestRatePercent(req.annualInterestRatePercent())
+                .scheduleType(req.scheduleType())
+                .startDate(req.startDate())
+                .build();
     }
 
     public static LoanResponse toResponse(Loan loan) {
-        return new LoanResponse(
-                loan.id(),
-                loan.borrowerName(),
-                loan.type(),
-                loan.amount(),
-                loan.termMonths(),
-                loan.annualInterestRatePercent(),
-                loan.scheduleType(),
-                loan.startDate(),
-                loan.createdAt(),
-                loan.updatedAt()
-        );
+        return LoanResponse.builder()
+                .id(loan.id())
+                .borrowerName(loan.borrowerName())
+                .type(loan.type())
+                .amount(loan.amount())
+                .termMonths(loan.termMonths())
+                .annualInterestRatePercent(loan.annualInterestRatePercent())
+                .scheduleType(loan.scheduleType())
+                .startDate(loan.startDate())
+                .createdAt(loan.createdAt())
+                .updatedAt(loan.updatedAt())
+                .build();
     }
 
     public static ScheduleResponse toResponse(RepaymentSchedule s) {
         var installments = s.installments().stream()
-                .map(i -> new ScheduleResponse.Installment(
-                        i.periodNumber(),
-                        i.dueDate(),
-                        i.principalAmount(),
-                        i.interestAmount(),
-                        i.totalPayment(),
-                        i.remainingBalance()))
+                .map(i -> ScheduleResponse.Installment.builder()
+                        .periodNumber(i.periodNumber())
+                        .dueDate(i.dueDate())
+                        .principalAmount(i.principalAmount())
+                        .interestAmount(i.interestAmount())
+                        .totalPayment(i.totalPayment())
+                        .remainingBalance(i.remainingBalance())
+                        .build())
                 .toList();
-        return new ScheduleResponse(
-                s.loanId(),
-                s.scheduleType(),
-                s.totalPrincipal(),
-                s.totalInterest(),
-                s.totalPaid(),
-                installments
-        );
+        return ScheduleResponse.builder()
+                .loanId(s.loanId())
+                .scheduleType(s.scheduleType())
+                .totalPrincipal(s.totalPrincipal())
+                .totalInterest(s.totalInterest())
+                .totalPaid(s.totalPaid())
+                .installments(installments)
+                .build();
     }
 }

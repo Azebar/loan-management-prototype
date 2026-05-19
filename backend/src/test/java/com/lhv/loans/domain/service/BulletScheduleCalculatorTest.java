@@ -16,7 +16,6 @@ class BulletScheduleCalculatorTest {
         var amount = new BigDecimal("100000.00");
         var s = calc.calculate(loan(amount, 6, new BigDecimal("12.00"), ScheduleType.BULLET));
 
-        // 12% / 12 = 1% per month → 1000.00 monthly interest.
         for (int i = 0; i < 5; i++) {
             assertThat(s.installments().get(i).principalAmount()).isEqualByComparingTo("0.00");
             assertThat(s.installments().get(i).interestAmount()).isEqualByComparingTo("1000.00");

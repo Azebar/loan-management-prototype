@@ -14,17 +14,17 @@ final class CalculatorTestFixtures {
 
     static Loan loan(BigDecimal amount, int months, BigDecimal annualRatePct, ScheduleType type) {
         var now = Instant.parse("2026-01-01T00:00:00Z");
-        return new Loan(
-                UUID.fromString("00000000-0000-0000-0000-000000000001"),
-                "Test Borrower",
-                LoanType.CONSUMER,
-                amount,
-                months,
-                annualRatePct,
-                type,
-                LocalDate.parse("2026-01-01"),
-                now,
-                now
-        );
+        return Loan.builder()
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000001"))
+                .borrowerName("Test Borrower")
+                .type(LoanType.CONSUMER)
+                .amount(amount)
+                .termMonths(months)
+                .annualInterestRatePercent(annualRatePct)
+                .scheduleType(type)
+                .startDate(LocalDate.parse("2026-01-01"))
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
     }
 }

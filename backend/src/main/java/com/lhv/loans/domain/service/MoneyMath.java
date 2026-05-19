@@ -4,15 +4,6 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
-/**
- * Shared numeric helpers for schedule calculations.
- *
- * <p>Convention:
- * <ul>
- *   <li>Money is rounded to 2 decimals using {@link RoundingMode#HALF_UP}.</li>
- *   <li>Intermediate rate math uses {@link MathContext#DECIMAL64}.</li>
- * </ul>
- */
 final class MoneyMath {
 
     static final MathContext MC = MathContext.DECIMAL64;
@@ -21,7 +12,6 @@ final class MoneyMath {
 
     private MoneyMath() {}
 
-    /** Annual % rate (e.g. 5.25) → monthly fractional rate (e.g. 0.004375). */
     static BigDecimal monthlyRate(BigDecimal annualPercent) {
         return annualPercent
                 .divide(BigDecimal.valueOf(100), MC)

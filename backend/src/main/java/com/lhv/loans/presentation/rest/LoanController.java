@@ -13,6 +13,7 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,13 +27,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/loans")
+@RequiredArgsConstructor
 public class LoanController {
 
     private final LoanApplicationService loans;
-
-    public LoanController(LoanApplicationService loans) {
-        this.loans = loans;
-    }
 
     @GetMapping
     public List<LoanResponse> list() {

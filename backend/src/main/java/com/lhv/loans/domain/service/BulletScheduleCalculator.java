@@ -5,15 +5,12 @@ import com.lhv.loans.domain.model.RepaymentSchedule;
 import com.lhv.loans.domain.model.ScheduleInstallment;
 import com.lhv.loans.domain.model.ScheduleType;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
-/**
- * Bullet loan: borrower pays interest only every period; the entire principal
- * is due in the final installment.
- */
 @Component
 public class BulletScheduleCalculator implements RepaymentScheduleCalculator {
 
@@ -37,31 +34,30 @@ public class BulletScheduleCalculator implements RepaymentScheduleCalculator {
 
         for (int i = 1; i <= n; i++) {
             dueDate = dueDate.plusMonths(1);
-            BigDecimal principalPart = (i == n) ? balance : BigDecimal.ZERO.setScale(MoneyMath.MONEY_SCALE);
-            BigDecimal interest = periodicInterest;
-            BigDecimal payment = MoneyMath.money(principalPart.add(interest));
+            BigDecimal principalPart = (i == n) ? balance : BigDecimal.ZERO.setScale(MoneyMath.MONEY_SCALE, RoundingMode.HALF_UP);
+            BigDecimal payment = MoneyMath.money(principalPart.add(periodicInterest));
             balance = balance.subtract(principalPart);
 
-            totalInterest = totalInterest.add(interest);
+            totalInterest = totalInterest.add(periodicInterest);
             totalPaid = totalPaid.add(payment);
 
-            installments.add(new ScheduleInstallment(
-                    i,
-                    dueDate,
-                    principalPart,
-                    interest,
-                    payment,
-                    MoneyMath.money(balance)
-            ));
+            installments.add(ScheduleInstallment.builder()
+                    .periodNumber(i)
+                    .dueDate(dueDate)
+                    .principalAmount(principalPart)
+                    .interestAmount(periodicInterest)
+                    .totalPayment(payment)
+                    .remainingBalance(MoneyMath.money(balance))
+                    .build());
         }
 
-        return new RepaymentSchedule(
-                loan.id(),
-                ScheduleType.BULLET,
-                installments,
-                MoneyMath.money(principal),
-                MoneyMath.money(totalInterest),
-                MoneyMath.money(totalPaid)
-        );
+        return RepaymentSchedule.builder()
+                .loanId(loan.id())
+                .scheduleType(ScheduleType.BULLET)
+                .installments(installments)
+                .totalPrincipal(MoneyMath.money(principal))
+                .totalInterest(MoneyMath.money(totalInterest))
+                .totalPaid(MoneyMath.money(totalPaid))
+                .build();
     }
 }

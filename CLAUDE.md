@@ -7,7 +7,7 @@ codebase contract — what to follow, what not to change.
 ## Stack at a glance
 
 - **Backend** — Java 25 (Temurin), Spring Boot 3.5, Gradle 9 (Kotlin DSL),
-  Flyway, Spring Data JPA, OpenCSV, springdoc-openapi.
+  Flyway, Spring Data JPA, OpenCSV, springdoc-openapi, Lombok.
 - **Frontend** — React 19, TypeScript 5.7, Vite 6, plain CSS (dark theme),
   no UI library.
 - **DB** — PostgreSQL 17.
@@ -68,6 +68,26 @@ across layers.** That's the whole point of the structure.
   404 / 400 by `GlobalExceptionHandler` — don't catch and re-throw them
   yourself.
 
+### Lombok
+- Version is managed by the Spring Boot BOM — declare without a version.
+  Required dependencies: `compileOnly("org.projectlombok:lombok")` +
+  `annotationProcessor("org.projectlombok:lombok")` (and the `test*`
+  counterparts).
+- All records carry `@Builder`. `Loan` uses `@Builder(toBuilder = true)` —
+  update flows go through `existing.toBuilder()...build()` rather than a
+  hand-written `withChanges` method. Construct records via the generated
+  builder, not positional `new Foo(...)`, so call sites stay consistent.
+- `LoanEntity` uses `@Getter`, `@Builder`, `@NoArgsConstructor(PROTECTED)`
+  (required by JPA), and `@AllArgsConstructor(PACKAGE)`. Don't hand-write
+  getters/constructors on it.
+- Spring-managed classes with constructor injection use
+  `@RequiredArgsConstructor` on `final` fields. `RepaymentScheduleService` is
+  the exception — its constructor transforms an injected `List` into a
+  `Map`, so it keeps an explicit body.
+- Records can't take `@Getter` / `@Setter` / `@AllArgsConstructor` /
+  `@NoArgsConstructor` (they conflict with what records already provide);
+  `@Builder` and `@With` are the supported ones.
+
 ### DB
 - Schema changes = a new file under `backend/src/main/resources/db/migration/`
   named `V{N}__description.sql`. **Never** edit an existing migration that's
@@ -106,6 +126,10 @@ docker compose down -v        # tear down INCLUDING the postgres volume
 - [x] Project scaffold + monorepo layout
 - [x] Backend (onion architecture) with annuity / equal-principal / bullet
       calculators, REST + CSV export, Swagger UI
+- [x] Lombok adopted across backend: `@Builder` on every record + `LoanEntity`,
+      `@Getter` / generated constructors on `LoanEntity`,
+      `@RequiredArgsConstructor` on Spring components; `Loan.withChanges`
+      replaced by `toBuilder()`
 - [x] Unit tests for all three calculators (textbook values + invariants),
       9 tests pass
 - [x] React + TS frontend: create / edit / delete / list loans, schedule view,

@@ -12,14 +12,18 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-/**
- * Persistence representation. Kept separate from the domain {@code Loan} so
- * storage concerns (JPA annotations, lifecycle, getters/setters) don't leak
- * into the domain.
- */
 @Entity
 @Table(name = "loans")
+@Getter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class LoanEntity {
 
     @Id
@@ -53,41 +57,4 @@ public class LoanEntity {
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
-
-    protected LoanEntity() {
-    }
-
-    LoanEntity(
-            UUID id,
-            String borrowerName,
-            LoanType type,
-            BigDecimal amount,
-            int termMonths,
-            BigDecimal annualInterestRatePercent,
-            ScheduleType scheduleType,
-            LocalDate startDate,
-            Instant createdAt,
-            Instant updatedAt) {
-        this.id = id;
-        this.borrowerName = borrowerName;
-        this.type = type;
-        this.amount = amount;
-        this.termMonths = termMonths;
-        this.annualInterestRatePercent = annualInterestRatePercent;
-        this.scheduleType = scheduleType;
-        this.startDate = startDate;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
-    public UUID getId() { return id; }
-    public String getBorrowerName() { return borrowerName; }
-    public LoanType getType() { return type; }
-    public BigDecimal getAmount() { return amount; }
-    public int getTermMonths() { return termMonths; }
-    public BigDecimal getAnnualInterestRatePercent() { return annualInterestRatePercent; }
-    public ScheduleType getScheduleType() { return scheduleType; }
-    public LocalDate getStartDate() { return startDate; }
-    public Instant getCreatedAt() { return createdAt; }
-    public Instant getUpdatedAt() { return updatedAt; }
 }

@@ -9,11 +9,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
-/**
- * Dispatches repayment schedule generation to the calculator that supports the
- * loan's schedule type. Adding a new schedule type means registering a new
- * {@link RepaymentScheduleCalculator} bean — no changes here.
- */
 @Service
 public class RepaymentScheduleService {
 

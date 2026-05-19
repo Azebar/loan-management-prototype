@@ -5,7 +5,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import lombok.Builder;
 
+@Builder
 public record ScheduleResponse(
         UUID loanId,
         ScheduleType scheduleType,
@@ -15,6 +17,7 @@ public record ScheduleResponse(
         List<Installment> installments
 ) {
 
+    @Builder
     public record Installment(
             int periodNumber,
             LocalDate dueDate,

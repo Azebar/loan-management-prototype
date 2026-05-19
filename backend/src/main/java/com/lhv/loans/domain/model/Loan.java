@@ -5,13 +5,9 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
+import lombok.Builder;
 
-/**
- * Aggregate root for a loan. Pure domain model — no JPA, no Spring.
- *
- * <p>Money is held as {@link BigDecimal} with scale 2 (cents). The annual interest
- * rate is a percentage value (e.g. {@code 5.25} for 5.25%), not a fraction.
- */
+@Builder(toBuilder = true)
 public record Loan(
         UUID id,
         String borrowerName,
@@ -44,29 +40,5 @@ public record Loan(
         if (annualInterestRatePercent == null || annualInterestRatePercent.signum() < 0) {
             throw new IllegalArgumentException("annualInterestRatePercent must be >= 0");
         }
-    }
-
-    public Loan withChanges(
-            String borrowerName,
-            LoanType type,
-            BigDecimal amount,
-            int termMonths,
-            BigDecimal annualInterestRatePercent,
-            ScheduleType scheduleType,
-            LocalDate startDate,
-            Instant updatedAt
-    ) {
-        return new Loan(
-                this.id,
-                borrowerName,
-                type,
-                amount,
-                termMonths,
-                annualInterestRatePercent,
-                scheduleType,
-                startDate,
-                this.createdAt,
-                updatedAt
-        );
     }
 }

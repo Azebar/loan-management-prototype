@@ -5,10 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-/**
- * Outbound port owned by the domain. Infrastructure (JPA) implements it; the
- * domain never depends on the implementation.
- */
 public interface LoanRepository {
 
     Loan save(Loan loan);

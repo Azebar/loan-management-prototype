@@ -7,32 +7,32 @@ final class LoanEntityMapper {
     private LoanEntityMapper() {}
 
     static LoanEntity toEntity(Loan loan) {
-        return new LoanEntity(
-                loan.id(),
-                loan.borrowerName(),
-                loan.type(),
-                loan.amount(),
-                loan.termMonths(),
-                loan.annualInterestRatePercent(),
-                loan.scheduleType(),
-                loan.startDate(),
-                loan.createdAt(),
-                loan.updatedAt()
-        );
+        return LoanEntity.builder()
+                .id(loan.id())
+                .borrowerName(loan.borrowerName())
+                .type(loan.type())
+                .amount(loan.amount())
+                .termMonths(loan.termMonths())
+                .annualInterestRatePercent(loan.annualInterestRatePercent())
+                .scheduleType(loan.scheduleType())
+                .startDate(loan.startDate())
+                .createdAt(loan.createdAt())
+                .updatedAt(loan.updatedAt())
+                .build();
     }
 
     static Loan toDomain(LoanEntity e) {
-        return new Loan(
-                e.getId(),
-                e.getBorrowerName(),
-                e.getType(),
-                e.getAmount(),
-                e.getTermMonths(),
-                e.getAnnualInterestRatePercent(),
-                e.getScheduleType(),
-                e.getStartDate(),
-                e.getCreatedAt(),
-                e.getUpdatedAt()
-        );
+        return Loan.builder()
+                .id(e.getId())
+                .borrowerName(e.getBorrowerName())
+                .type(e.getType())
+                .amount(e.getAmount())
+                .termMonths(e.getTermMonths())
+                .annualInterestRatePercent(e.getAnnualInterestRatePercent())
+                .scheduleType(e.getScheduleType())
+                .startDate(e.getStartDate())
+                .createdAt(e.getCreatedAt())
+                .updatedAt(e.getUpdatedAt())
+                .build();
     }
 }

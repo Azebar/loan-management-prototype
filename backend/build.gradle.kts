@@ -18,25 +18,31 @@ repositories {
 }
 
 dependencies {
+    val opencsvVersion = "5.11"
+    val springdocVersion = "2.7.0"
+    val lombok = "org.projectlombok:lombok"
+
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
+    implementation("com.opencsv:opencsv:$opencsvVersion")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocVersion")
+
+    compileOnly(lombok)
+
+    annotationProcessor(lombok)
+
     runtimeOnly("org.postgresql:postgresql")
-
-    // CSV writing (lightweight, no transitive bloat).
-    implementation("com.opencsv:opencsv:5.11")
-
-    // OpenAPI/Swagger UI for explorability.
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.assertj:assertj-core")
+    testCompileOnly(lombok)
+    testAnnotationProcessor(lombok)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

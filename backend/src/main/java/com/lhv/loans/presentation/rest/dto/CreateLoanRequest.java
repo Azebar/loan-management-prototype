@@ -12,7 +12,9 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import lombok.Builder;
 
+@Builder
 public record CreateLoanRequest(
         @NotBlank @Size(max = 200) String borrowerName,
         @NotNull LoanType type,

@@ -4,7 +4,7 @@ A small full-stack prototype that lets a product analyst create loans and inspec
 the corresponding repayment schedules. Built as a take-home exercise to show how
 I'd structure a small but real Java service end-to-end.
 
-> **Stack** — Java 25 · Spring Boot 3.5 · PostgreSQL 17 · Flyway · React 19 · TypeScript · Vite · Docker Compose
+> **Stack** — Java 25 · Spring Boot 3.5 · Lombok · PostgreSQL 17 · Flyway · React 19 · TypeScript · Vite · Docker Compose
 
 ---
 
@@ -57,6 +57,11 @@ and lets the storage choice change without touching the domain.
 
 * **Java records throughout** for the domain & DTOs — they're immutable,
   equals/hashCode are free, and they keep the brief code-light.
+* **Lombok** for the remaining boilerplate. Records carry `@Builder`
+  (`@Builder(toBuilder = true)` on `Loan`) so update flows read as
+  `existing.toBuilder().borrowerName(...).build()`. The JPA `LoanEntity` uses
+  `@Getter` / `@Builder` / generated constructors, and Spring components use
+  `@RequiredArgsConstructor` for constructor injection.
 * **`BigDecimal`, never `double`, for money.** Money is rounded to two decimals
   with `HALF_UP`; intermediate rate maths runs at `MathContext.DECIMAL64`.
 * **The final installment absorbs rounding remainders**, so every generated
