@@ -21,18 +21,18 @@ final class LoanEntityMapper {
                 .build();
     }
 
-    static Loan toDomain(LoanEntity e) {
+    static Loan toDomain(LoanEntity entity) {
         return Loan.builder()
-                .id(e.getId())
-                .borrowerName(e.getBorrowerName())
-                .type(e.getType())
-                .amount(e.getAmount())
-                .termMonths(e.getTermMonths())
-                .annualInterestRatePercent(e.getAnnualInterestRatePercent())
-                .scheduleType(e.getScheduleType())
-                .startDate(e.getStartDate())
-                .createdAt(e.getCreatedAt())
-                .updatedAt(e.getUpdatedAt())
+                .id(entity.getId())
+                .borrowerName(entity.getBorrowerName())
+                .type(entity.getType())
+                .amount(entity.getAmount())
+                .termMonths(entity.getTermMonths())
+                .annualInterestRatePercent(entity.getAnnualInterestRatePercent())
+                .scheduleType(entity.getScheduleType())
+                .startDate(entity.getStartDate())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 }

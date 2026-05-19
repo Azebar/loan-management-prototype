@@ -37,6 +37,21 @@ across layers.** That's the whole point of the structure.
 
 ## Coding conventions
 
+### Naming
+- **No short identifiers** — local variables, parameters, lambda arguments,
+  loop counters, and constants must be descriptive words. Treat anything 1–3
+  characters as a smell: `cmd` → `command`, `req` → `request`, `e` → `entity`
+  / `event` / `exception` (context-dependent), `err` → `error`,
+  `s` → `schedule`, `i` → `period` (when it's a loop counter for a schedule
+  period) or `installment` (when iterating installments), `r` → `monthlyRate`,
+  `n` → `termMonths`, `MC` → `RATE_MATH`. Loop counters are no exception —
+  prefer `for (int period = 1; period <= termMonths; period++)` over
+  `for (int i = ...)`. Generic type parameters (`T`, `K`, `V`) are the only
+  permitted single-letter identifiers.
+- Public API surface is exempt where renaming would change a contract — JSON
+  field names on response DTOs, JPA column-mapped fields on `LoanEntity`, and
+  the `Loan` record's `id` / `type` components stay as they are.
+
 ### Money
 - Always `BigDecimal`, never `double` or `float`.
 - Money values are scale 2 with `RoundingMode.HALF_UP` — go through

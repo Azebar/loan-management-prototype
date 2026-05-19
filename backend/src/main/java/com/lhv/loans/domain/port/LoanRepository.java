@@ -9,9 +9,9 @@ public interface LoanRepository {
 
     Loan save(Loan loan);
 
-    Optional<Loan> findById(UUID id);
+    Optional<Loan> findById(UUID loanId);
 
     List<Loan> findAll();
 
-    boolean deleteById(UUID id);
+    boolean deleteById(UUID loanId);
 }

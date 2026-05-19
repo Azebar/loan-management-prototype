@@ -22,19 +22,19 @@ public class BulletScheduleCalculator implements RepaymentScheduleCalculator {
     @Override
     public RepaymentSchedule calculate(Loan loan) {
         BigDecimal principal = loan.amount();
-        int n = loan.termMonths();
-        BigDecimal r = MoneyMath.monthlyRate(loan.annualInterestRatePercent());
-        BigDecimal periodicInterest = MoneyMath.money(principal.multiply(r, MoneyMath.MC));
+        int termMonths = loan.termMonths();
+        BigDecimal monthlyRate = MoneyMath.monthlyRate(loan.annualInterestRatePercent());
+        BigDecimal periodicInterest = MoneyMath.money(principal.multiply(monthlyRate, MoneyMath.RATE_MATH));
 
-        List<ScheduleInstallment> installments = new ArrayList<>(n);
+        List<ScheduleInstallment> installments = new ArrayList<>(termMonths);
         BigDecimal totalInterest = BigDecimal.ZERO;
         BigDecimal totalPaid = BigDecimal.ZERO;
         BigDecimal balance = principal;
         LocalDate dueDate = loan.startDate();
 
-        for (int i = 1; i <= n; i++) {
+        for (int period = 1; period <= termMonths; period++) {
             dueDate = dueDate.plusMonths(1);
-            BigDecimal principalPart = (i == n) ? balance : BigDecimal.ZERO.setScale(MoneyMath.MONEY_SCALE, RoundingMode.HALF_UP);
+            BigDecimal principalPart = (period == termMonths) ? balance : BigDecimal.ZERO.setScale(MoneyMath.MONEY_SCALE, RoundingMode.HALF_UP);
             BigDecimal payment = MoneyMath.money(principalPart.add(periodicInterest));
             balance = balance.subtract(principalPart);
 
@@ -42,7 +42,7 @@ public class BulletScheduleCalculator implements RepaymentScheduleCalculator {
             totalPaid = totalPaid.add(payment);
 
             installments.add(ScheduleInstallment.builder()
-                    .periodNumber(i)
+                    .periodNumber(period)
                     .dueDate(dueDate)
                     .principalAmount(principalPart)
                     .interestAmount(periodicInterest)

@@ -19,8 +19,8 @@ export function App() {
       const list = await loansApi.list();
       setLoans(list);
       setGlobalError(null);
-    } catch (err) {
-      setGlobalError(err instanceof Error ? err.message : "Failed to load loans");
+    } catch (error) {
+      setGlobalError(error instanceof Error ? error.message : "Failed to load loans");
     } finally {
       setLoading(false);
     }
@@ -35,9 +35,9 @@ export function App() {
     }
     let cancelled = false;
     loansApi.schedule(selected.id)
-      .then((s) => { if (!cancelled) setSchedule(s); })
-      .catch((err) => {
-        if (!cancelled) setGlobalError(err instanceof Error ? err.message : "Failed to load schedule");
+      .then((loadedSchedule) => { if (!cancelled) setSchedule(loadedSchedule); })
+      .catch((error) => {
+        if (!cancelled) setGlobalError(error instanceof Error ? error.message : "Failed to load schedule");
       });
     return () => { cancelled = true; };
   }, [selected]);
@@ -67,14 +67,14 @@ export function App() {
   }
 
   async function handleDelete(loan: Loan) {
-    if (!window.confirm(`Delete loan for ${loan.borrowerName}?`)) return;
+    if (!globalThis.confirm(`Delete loan for ${loan.borrowerName}?`)) return;
     try {
       await loansApi.remove(loan.id);
       if (selected?.id === loan.id) setSelected(null);
       if (editing?.id === loan.id) setEditing(null);
       await refresh();
-    } catch (err) {
-      setGlobalError(err instanceof Error ? err.message : "Failed to delete loan");
+    } catch (error) {
+      setGlobalError(error instanceof Error ? error.message : "Failed to delete loan");
     }
   }
 
@@ -103,7 +103,7 @@ export function App() {
               loans={loans}
               selectedId={selected?.id ?? null}
               onSelect={setSelected}
-              onEdit={(l) => { setEditing(l); setSelected(l); }}
+              onEdit={(loan) => { setEditing(loan); setSelected(loan); }}
               onDelete={handleDelete}
             />
           )}

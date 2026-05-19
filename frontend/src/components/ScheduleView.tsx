@@ -6,15 +6,15 @@ interface Props {
   loanLabel: string;
 }
 
-function fmt(s: string) {
-  const n = Number(s);
+function formatMoney(value: string) {
+  const numeric = Number(value);
   return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(n);
+  }).format(numeric);
 }
 
-export function ScheduleView({ schedule, loanLabel }: Props) {
+export function ScheduleView({ schedule, loanLabel }: Readonly<Props>) {
   return (
     <div className="card">
       <div className="toolbar">
@@ -41,15 +41,15 @@ export function ScheduleView({ schedule, loanLabel }: Props) {
       <div className="totals">
         <div className="stat">
           <div className="label">Total principal</div>
-          <div className="value">{fmt(schedule.totalPrincipal)}</div>
+          <div className="value">{formatMoney(schedule.totalPrincipal)}</div>
         </div>
         <div className="stat">
           <div className="label">Total interest</div>
-          <div className="value">{fmt(schedule.totalInterest)}</div>
+          <div className="value">{formatMoney(schedule.totalInterest)}</div>
         </div>
         <div className="stat">
           <div className="label">Total paid</div>
-          <div className="value">{fmt(schedule.totalPaid)}</div>
+          <div className="value">{formatMoney(schedule.totalPaid)}</div>
         </div>
       </div>
 
@@ -66,14 +66,14 @@ export function ScheduleView({ schedule, loanLabel }: Props) {
             </tr>
           </thead>
           <tbody>
-            {schedule.installments.map((i) => (
-              <tr key={i.periodNumber}>
-                <td>{i.periodNumber}</td>
-                <td>{i.dueDate}</td>
-                <td className="num">{fmt(i.principalAmount)}</td>
-                <td className="num">{fmt(i.interestAmount)}</td>
-                <td className="num">{fmt(i.totalPayment)}</td>
-                <td className="num">{fmt(i.remainingBalance)}</td>
+            {schedule.installments.map((installment) => (
+              <tr key={installment.periodNumber}>
+                <td>{installment.periodNumber}</td>
+                <td>{installment.dueDate}</td>
+                <td className="num">{formatMoney(installment.principalAmount)}</td>
+                <td className="num">{formatMoney(installment.interestAmount)}</td>
+                <td className="num">{formatMoney(installment.totalPayment)}</td>
+                <td className="num">{formatMoney(installment.remainingBalance)}</td>
               </tr>
             ))}
           </tbody>

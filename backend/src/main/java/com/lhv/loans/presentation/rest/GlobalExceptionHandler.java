@@ -14,33 +14,33 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(LoanNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleNotFound(LoanNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body(HttpStatus.NOT_FOUND, ex.getMessage()));
+    public ResponseEntity<Map<String, Object>> handleNotFound(LoanNotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(buildErrorBody(HttpStatus.NOT_FOUND, exception.getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
-        return ResponseEntity.badRequest().body(body(HttpStatus.BAD_REQUEST, ex.getMessage()));
+    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException exception) {
+        return ResponseEntity.badRequest().body(buildErrorBody(HttpStatus.BAD_REQUEST, exception.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
-        var errors = ex.getBindingResult().getFieldErrors().stream()
-                .map(e -> Map.of(
-                        "field", e.getField(),
-                        "message", e.getDefaultMessage() == null ? "invalid" : e.getDefaultMessage()))
+    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException exception) {
+        var errors = exception.getBindingResult().getFieldErrors().stream()
+                .map(fieldError -> Map.of(
+                        "field", fieldError.getField(),
+                        "message", fieldError.getDefaultMessage() == null ? "invalid" : fieldError.getDefaultMessage()))
                 .toList();
-        var body = body(HttpStatus.BAD_REQUEST, "Validation failed");
+        var body = buildErrorBody(HttpStatus.BAD_REQUEST, "Validation failed");
         body.put("errors", errors);
         return ResponseEntity.badRequest().body(body);
     }
 
-    private static Map<String, Object> body(HttpStatus status, String message) {
-        Map<String, Object> m = new LinkedHashMap<>();
-        m.put("timestamp", Instant.now().toString());
-        m.put("status", status.value());
-        m.put("error", status.getReasonPhrase());
-        m.put("message", message);
-        return m;
+    private static Map<String, Object> buildErrorBody(HttpStatus status, String message) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", Instant.now().toString());
+        body.put("status", status.value());
+        body.put("error", status.getReasonPhrase());
+        body.put("message", message);
+        return body;
     }
 }

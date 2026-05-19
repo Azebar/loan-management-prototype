@@ -25,7 +25,7 @@ const empty: LoanInput = {
   startDate: new Date().toISOString().slice(0, 10),
 };
 
-export function LoanForm({ initial, onSubmit, onCancelEdit, submitting }: Props) {
+export function LoanForm({ initial, onSubmit, onCancelEdit, submitting }: Readonly<Props>) {
   const [form, setForm] = useState<LoanInput>(empty);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,19 +50,25 @@ export function LoanForm({ initial, onSubmit, onCancelEdit, submitting }: Props)
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    try {
-      await onSubmit(form);
-      if (!initial) setForm(empty);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save loan");
-    }
-  }
+  let submitLabel: string;
+  if (submitting) submitLabel = "Saving…";
+  else if (initial) submitLabel = "Save changes";
+  else submitLabel = "Create loan";
 
   return (
-    <form className="card" onSubmit={handleSubmit}>
+    <form
+      className="card"
+      onSubmit={async (event) => {
+        event.preventDefault();
+        setError(null);
+        try {
+          await onSubmit(form);
+          if (!initial) setForm(empty);
+        } catch (error) {
+          setError(error instanceof Error ? error.message : "Failed to save loan");
+        }
+      }}
+    >
       <h2>{initial ? "Edit loan" : "New loan"}</h2>
 
       <div className="field">
@@ -71,7 +77,7 @@ export function LoanForm({ initial, onSubmit, onCancelEdit, submitting }: Props)
           id="borrower"
           type="text"
           value={form.borrowerName}
-          onChange={(e) => update("borrowerName", e.target.value)}
+          onChange={(event) => update("borrowerName", event.target.value)}
           required
         />
       </div>
@@ -81,10 +87,10 @@ export function LoanForm({ initial, onSubmit, onCancelEdit, submitting }: Props)
         <select
           id="type"
           value={form.type}
-          onChange={(e) => update("type", e.target.value as LoanInput["type"])}
+          onChange={(event) => update("type", event.target.value as LoanInput["type"])}
         >
-          {LOAN_TYPES.map((t) => (
-            <option key={t} value={t}>{LOAN_TYPE_LABELS[t]}</option>
+          {LOAN_TYPES.map((loanType) => (
+            <option key={loanType} value={loanType}>{LOAN_TYPE_LABELS[loanType]}</option>
           ))}
         </select>
       </div>
@@ -98,7 +104,7 @@ export function LoanForm({ initial, onSubmit, onCancelEdit, submitting }: Props)
             min="0.01"
             step="0.01"
             value={form.amount}
-            onChange={(e) => update("amount", e.target.value)}
+            onChange={(event) => update("amount", event.target.value)}
             required
           />
         </div>
@@ -110,7 +116,7 @@ export function LoanForm({ initial, onSubmit, onCancelEdit, submitting }: Props)
             min="1"
             max="600"
             value={form.termMonths}
-            onChange={(e) => update("termMonths", Number(e.target.value))}
+            onChange={(event) => update("termMonths", Number(event.target.value))}
             required
           />
         </div>
@@ -125,7 +131,7 @@ export function LoanForm({ initial, onSubmit, onCancelEdit, submitting }: Props)
             min="0"
             step="0.01"
             value={form.annualInterestRatePercent}
-            onChange={(e) => update("annualInterestRatePercent", e.target.value)}
+            onChange={(event) => update("annualInterestRatePercent", event.target.value)}
             required
           />
         </div>
@@ -135,7 +141,7 @@ export function LoanForm({ initial, onSubmit, onCancelEdit, submitting }: Props)
             id="start"
             type="date"
             value={form.startDate}
-            onChange={(e) => update("startDate", e.target.value)}
+            onChange={(event) => update("startDate", event.target.value)}
             required
           />
         </div>
@@ -146,10 +152,10 @@ export function LoanForm({ initial, onSubmit, onCancelEdit, submitting }: Props)
         <select
           id="schedule"
           value={form.scheduleType}
-          onChange={(e) => update("scheduleType", e.target.value as LoanInput["scheduleType"])}
+          onChange={(event) => update("scheduleType", event.target.value as LoanInput["scheduleType"])}
         >
-          {SCHEDULE_TYPES.map((s) => (
-            <option key={s} value={s}>{SCHEDULE_TYPE_LABELS[s]}</option>
+          {SCHEDULE_TYPES.map((scheduleType) => (
+            <option key={scheduleType} value={scheduleType}>{SCHEDULE_TYPE_LABELS[scheduleType]}</option>
           ))}
         </select>
       </div>
@@ -158,7 +164,7 @@ export function LoanForm({ initial, onSubmit, onCancelEdit, submitting }: Props)
 
       <div className="row">
         <button type="submit" className="primary" disabled={submitting}>
-          {submitting ? "Saving…" : initial ? "Save changes" : "Create loan"}
+          {submitLabel}
         </button>
         {initial && onCancelEdit && (
           <button type="button" className="ghost" onClick={onCancelEdit}>

@@ -13,27 +13,27 @@ public final class LoanWebMapper {
 
     private LoanWebMapper() {}
 
-    public static CreateLoanCommand toCommand(CreateLoanRequest req) {
+    public static CreateLoanCommand toCommand(CreateLoanRequest request) {
         return CreateLoanCommand.builder()
-                .borrowerName(req.borrowerName())
-                .type(req.type())
-                .amount(req.amount())
-                .termMonths(req.termMonths())
-                .annualInterestRatePercent(req.annualInterestRatePercent())
-                .scheduleType(req.scheduleType())
-                .startDate(req.startDate())
+                .borrowerName(request.borrowerName())
+                .type(request.type())
+                .amount(request.amount())
+                .termMonths(request.termMonths())
+                .annualInterestRatePercent(request.annualInterestRatePercent())
+                .scheduleType(request.scheduleType())
+                .startDate(request.startDate())
                 .build();
     }
 
-    public static UpdateLoanCommand toCommand(UpdateLoanRequest req) {
+    public static UpdateLoanCommand toCommand(UpdateLoanRequest request) {
         return UpdateLoanCommand.builder()
-                .borrowerName(req.borrowerName())
-                .type(req.type())
-                .amount(req.amount())
-                .termMonths(req.termMonths())
-                .annualInterestRatePercent(req.annualInterestRatePercent())
-                .scheduleType(req.scheduleType())
-                .startDate(req.startDate())
+                .borrowerName(request.borrowerName())
+                .type(request.type())
+                .amount(request.amount())
+                .termMonths(request.termMonths())
+                .annualInterestRatePercent(request.annualInterestRatePercent())
+                .scheduleType(request.scheduleType())
+                .startDate(request.startDate())
                 .build();
     }
 
@@ -52,23 +52,23 @@ public final class LoanWebMapper {
                 .build();
     }
 
-    public static ScheduleResponse toResponse(RepaymentSchedule s) {
-        var installments = s.installments().stream()
-                .map(i -> ScheduleResponse.Installment.builder()
-                        .periodNumber(i.periodNumber())
-                        .dueDate(i.dueDate())
-                        .principalAmount(i.principalAmount())
-                        .interestAmount(i.interestAmount())
-                        .totalPayment(i.totalPayment())
-                        .remainingBalance(i.remainingBalance())
+    public static ScheduleResponse toResponse(RepaymentSchedule schedule) {
+        var installments = schedule.installments().stream()
+                .map(installment -> ScheduleResponse.Installment.builder()
+                        .periodNumber(installment.periodNumber())
+                        .dueDate(installment.dueDate())
+                        .principalAmount(installment.principalAmount())
+                        .interestAmount(installment.interestAmount())
+                        .totalPayment(installment.totalPayment())
+                        .remainingBalance(installment.remainingBalance())
                         .build())
                 .toList();
         return ScheduleResponse.builder()
-                .loanId(s.loanId())
-                .scheduleType(s.scheduleType())
-                .totalPrincipal(s.totalPrincipal())
-                .totalInterest(s.totalInterest())
-                .totalPaid(s.totalPaid())
+                .loanId(schedule.loanId())
+                .scheduleType(schedule.scheduleType())
+                .totalPrincipal(schedule.totalPrincipal())
+                .totalInterest(schedule.totalInterest())
+                .totalPaid(schedule.totalPaid())
                 .installments(installments)
                 .build();
     }

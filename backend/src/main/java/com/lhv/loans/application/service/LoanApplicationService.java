@@ -23,41 +23,41 @@ public class LoanApplicationService {
     private final RepaymentScheduleService schedules;
     private final Clock clock;
 
-    public Loan create(CreateLoanCommand cmd) {
+    public Loan create(CreateLoanCommand command) {
         var now = clock.instant();
         var loan = Loan.builder()
                 .id(UUID.randomUUID())
-                .borrowerName(cmd.borrowerName())
-                .type(cmd.type())
-                .amount(cmd.amount())
-                .termMonths(cmd.termMonths())
-                .annualInterestRatePercent(cmd.annualInterestRatePercent())
-                .scheduleType(cmd.scheduleType())
-                .startDate(cmd.startDate())
+                .borrowerName(command.borrowerName())
+                .type(command.type())
+                .amount(command.amount())
+                .termMonths(command.termMonths())
+                .annualInterestRatePercent(command.annualInterestRatePercent())
+                .scheduleType(command.scheduleType())
+                .startDate(command.startDate())
                 .createdAt(now)
                 .updatedAt(now)
                 .build();
         return loans.save(loan);
     }
 
-    public Loan update(UUID id, UpdateLoanCommand cmd) {
-        var existing = findOrThrow(id);
+    public Loan update(UUID loanId, UpdateLoanCommand command) {
+        var existing = findOrThrow(loanId);
         var updated = existing.toBuilder()
-                .borrowerName(cmd.borrowerName())
-                .type(cmd.type())
-                .amount(cmd.amount())
-                .termMonths(cmd.termMonths())
-                .annualInterestRatePercent(cmd.annualInterestRatePercent())
-                .scheduleType(cmd.scheduleType())
-                .startDate(cmd.startDate())
+                .borrowerName(command.borrowerName())
+                .type(command.type())
+                .amount(command.amount())
+                .termMonths(command.termMonths())
+                .annualInterestRatePercent(command.annualInterestRatePercent())
+                .scheduleType(command.scheduleType())
+                .startDate(command.startDate())
                 .updatedAt(clock.instant())
                 .build();
         return loans.save(updated);
     }
 
     @Transactional(readOnly = true)
-    public Loan get(UUID id) {
-        return findOrThrow(id);
+    public Loan get(UUID loanId) {
+        return findOrThrow(loanId);
     }
 
     @Transactional(readOnly = true)
@@ -65,18 +65,18 @@ public class LoanApplicationService {
         return loans.findAll();
     }
 
-    public void delete(UUID id) {
-        if (!loans.deleteById(id)) {
-            throw new LoanNotFoundException(id);
+    public void delete(UUID loanId) {
+        if (!loans.deleteById(loanId)) {
+            throw new LoanNotFoundException(loanId);
         }
     }
 
     @Transactional(readOnly = true)
-    public RepaymentSchedule schedule(UUID id) {
-        return schedules.scheduleFor(findOrThrow(id));
+    public RepaymentSchedule schedule(UUID loanId) {
+        return schedules.scheduleFor(findOrThrow(loanId));
     }
 
-    private Loan findOrThrow(UUID id) {
-        return loans.findById(id).orElseThrow(() -> new LoanNotFoundException(id));
+    private Loan findOrThrow(UUID loanId) {
+        return loans.findById(loanId).orElseThrow(() -> new LoanNotFoundException(loanId));
     }
 }

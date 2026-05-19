@@ -37,60 +37,60 @@ public class LoanController {
         return loans.list().stream().map(LoanWebMapper::toResponse).toList();
     }
 
-    @GetMapping("/{id}")
-    public LoanResponse get(@PathVariable UUID id) {
-        return LoanWebMapper.toResponse(loans.get(id));
+    @GetMapping("/{loanId}")
+    public LoanResponse get(@PathVariable UUID loanId) {
+        return LoanWebMapper.toResponse(loans.get(loanId));
     }
 
     @PostMapping
-    public ResponseEntity<LoanResponse> create(@Valid @RequestBody CreateLoanRequest req) {
-        var loan = loans.create(LoanWebMapper.toCommand(req));
+    public ResponseEntity<LoanResponse> create(@Valid @RequestBody CreateLoanRequest request) {
+        var loan = loans.create(LoanWebMapper.toCommand(request));
         return ResponseEntity
                 .created(URI.create("/api/loans/" + loan.id()))
                 .body(LoanWebMapper.toResponse(loan));
     }
 
-    @PutMapping("/{id}")
-    public LoanResponse update(@PathVariable UUID id, @Valid @RequestBody UpdateLoanRequest req) {
-        return LoanWebMapper.toResponse(loans.update(id, LoanWebMapper.toCommand(req)));
+    @PutMapping("/{loanId}")
+    public LoanResponse update(@PathVariable UUID loanId, @Valid @RequestBody UpdateLoanRequest request) {
+        return LoanWebMapper.toResponse(loans.update(loanId, LoanWebMapper.toCommand(request)));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        loans.delete(id);
+    @DeleteMapping("/{loanId}")
+    public ResponseEntity<Void> delete(@PathVariable UUID loanId) {
+        loans.delete(loanId);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}/schedule")
-    public ScheduleResponse schedule(@PathVariable UUID id) {
-        return LoanWebMapper.toResponse(loans.schedule(id));
+    @GetMapping("/{loanId}/schedule")
+    public ScheduleResponse schedule(@PathVariable UUID loanId) {
+        return LoanWebMapper.toResponse(loans.schedule(loanId));
     }
 
-    @GetMapping(value = "/{id}/schedule.csv", produces = "text/csv")
-    public ResponseEntity<String> scheduleCsv(@PathVariable UUID id) {
-        RepaymentSchedule s = loans.schedule(id);
-        StringWriter sw = new StringWriter();
-        try (CSVWriter csv = new CSVWriter(sw)) {
-            csv.writeNext(new String[]{
+    @GetMapping(value = "/{loanId}/schedule.csv", produces = "text/csv")
+    public ResponseEntity<String> scheduleCsv(@PathVariable UUID loanId) {
+        RepaymentSchedule schedule = loans.schedule(loanId);
+        StringWriter csvBuffer = new StringWriter();
+        try (CSVWriter csvWriter = new CSVWriter(csvBuffer)) {
+            csvWriter.writeNext(new String[]{
                     "period", "dueDate", "principal", "interest", "totalPayment", "remainingBalance"
             });
-            for (var i : s.installments()) {
-                csv.writeNext(new String[]{
-                        Integer.toString(i.periodNumber()),
-                        i.dueDate().toString(),
-                        i.principalAmount().toPlainString(),
-                        i.interestAmount().toPlainString(),
-                        i.totalPayment().toPlainString(),
-                        i.remainingBalance().toPlainString()
+            for (var installment : schedule.installments()) {
+                csvWriter.writeNext(new String[]{
+                        Integer.toString(installment.periodNumber()),
+                        installment.dueDate().toString(),
+                        installment.principalAmount().toPlainString(),
+                        installment.interestAmount().toPlainString(),
+                        installment.totalPayment().toPlainString(),
+                        installment.remainingBalance().toPlainString()
                 });
             }
-        } catch (java.io.IOException e) {
-            throw new IllegalStateException("Failed to render CSV", e);
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("Failed to render CSV", exception);
         }
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("text/csv"))
                 .header("Content-Disposition",
-                        "attachment; filename=\"schedule-" + id + ".csv\"")
-                .body(sw.toString());
+                        "attachment; filename=\"schedule-" + loanId + ".csv\"")
+                .body(csvBuffer.toString());
     }
 }

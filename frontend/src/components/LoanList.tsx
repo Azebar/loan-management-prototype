@@ -12,12 +12,12 @@ interface Props {
   onDelete: (loan: Loan) => void;
 }
 
-function formatMoney(s: string) {
-  const n = Number(s);
-  return new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+function formatMoney(value: string) {
+  const numeric = Number(value);
+  return new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(numeric);
 }
 
-export function LoanList({ loans, selectedId, onSelect, onEdit, onDelete }: Props) {
+export function LoanList({ loans, selectedId, onSelect, onEdit, onDelete }: Readonly<Props>) {
   if (loans.length === 0) {
     return <div className="card"><div className="empty">No loans yet. Create one on the left.</div></div>;
   }
@@ -37,21 +37,21 @@ export function LoanList({ loans, selectedId, onSelect, onEdit, onDelete }: Prop
           </tr>
         </thead>
         <tbody>
-          {loans.map((l) => (
+          {loans.map((loan) => (
             <tr
-              key={l.id}
-              className={"loan-row " + (l.id === selectedId ? "selected" : "")}
-              onClick={() => onSelect(l)}
+              key={loan.id}
+              className={"loan-row " + (loan.id === selectedId ? "selected" : "")}
+              onClick={() => onSelect(loan)}
             >
-              <td>{l.borrowerName}</td>
-              <td><span className="badge">{LOAN_TYPE_LABELS[l.type]}</span></td>
-              <td className="num">{formatMoney(l.amount)}</td>
-              <td className="num">{l.termMonths} mo</td>
-              <td className="num">{Number(l.annualInterestRatePercent).toFixed(2)}%</td>
-              <td><span className="badge">{SCHEDULE_TYPE_LABELS[l.scheduleType]}</span></td>
-              <td onClick={(e) => e.stopPropagation()} style={{ whiteSpace: "nowrap" }}>
-                <button className="ghost" onClick={() => onEdit(l)}>Edit</button>{" "}
-                <button className="danger" onClick={() => onDelete(l)}>Delete</button>
+              <td>{loan.borrowerName}</td>
+              <td><span className="badge">{LOAN_TYPE_LABELS[loan.type]}</span></td>
+              <td className="num">{formatMoney(loan.amount)}</td>
+              <td className="num">{loan.termMonths} mo</td>
+              <td className="num">{Number(loan.annualInterestRatePercent).toFixed(2)}%</td>
+              <td><span className="badge">{SCHEDULE_TYPE_LABELS[loan.scheduleType]}</span></td>
+              <td onClick={(event) => event.stopPropagation()} style={{ whiteSpace: "nowrap" }}>
+                <button className="ghost" onClick={() => onEdit(loan)}>Edit</button>{" "}
+                <button className="danger" onClick={() => onDelete(loan)}>Delete</button>
               </td>
             </tr>
           ))}

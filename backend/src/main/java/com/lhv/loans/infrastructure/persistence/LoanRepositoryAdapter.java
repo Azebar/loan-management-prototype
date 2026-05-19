@@ -22,8 +22,8 @@ public class LoanRepositoryAdapter implements LoanRepository {
     }
 
     @Override
-    public Optional<Loan> findById(UUID id) {
-        return jpa.findById(id).map(LoanEntityMapper::toDomain);
+    public Optional<Loan> findById(UUID loanId) {
+        return jpa.findById(loanId).map(LoanEntityMapper::toDomain);
     }
 
     @Override
@@ -34,11 +34,11 @@ public class LoanRepositoryAdapter implements LoanRepository {
     }
 
     @Override
-    public boolean deleteById(UUID id) {
-        if (!jpa.existsById(id)) {
+    public boolean deleteById(UUID loanId) {
+        if (!jpa.existsById(loanId)) {
             return false;
         }
-        jpa.deleteById(id);
+        jpa.deleteById(loanId);
         return true;
     }
 }

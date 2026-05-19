@@ -21,25 +21,25 @@ public class AnnuityScheduleCalculator implements RepaymentScheduleCalculator {
     @Override
     public RepaymentSchedule calculate(Loan loan) {
         BigDecimal principal = loan.amount();
-        int n = loan.termMonths();
-        BigDecimal r = MoneyMath.monthlyRate(loan.annualInterestRatePercent());
+        int termMonths = loan.termMonths();
+        BigDecimal monthlyRate = MoneyMath.monthlyRate(loan.annualInterestRatePercent());
 
-        BigDecimal annuityPayment = computeAnnuity(principal, r, n);
+        BigDecimal annuityPayment = computeAnnuity(principal, monthlyRate, termMonths);
 
-        List<ScheduleInstallment> installments = new ArrayList<>(n);
+        List<ScheduleInstallment> installments = new ArrayList<>(termMonths);
         BigDecimal balance = principal;
         BigDecimal totalInterest = BigDecimal.ZERO;
         BigDecimal totalPrincipal = BigDecimal.ZERO;
         BigDecimal totalPaid = BigDecimal.ZERO;
         LocalDate dueDate = loan.startDate();
 
-        for (int i = 1; i <= n; i++) {
+        for (int period = 1; period <= termMonths; period++) {
             dueDate = dueDate.plusMonths(1);
-            BigDecimal interest = MoneyMath.money(balance.multiply(r, MoneyMath.MC));
+            BigDecimal interest = MoneyMath.money(balance.multiply(monthlyRate, MoneyMath.RATE_MATH));
             BigDecimal principalPart;
             BigDecimal payment;
 
-            if (i == n) {
+            if (period == termMonths) {
                 principalPart = balance;
                 payment = MoneyMath.money(principalPart.add(interest));
             } else {
@@ -56,7 +56,7 @@ public class AnnuityScheduleCalculator implements RepaymentScheduleCalculator {
             totalPaid = totalPaid.add(payment);
 
             installments.add(ScheduleInstallment.builder()
-                    .periodNumber(i)
+                    .periodNumber(period)
                     .dueDate(dueDate)
                     .principalAmount(principalPart)
                     .interestAmount(interest)
@@ -75,13 +75,13 @@ public class AnnuityScheduleCalculator implements RepaymentScheduleCalculator {
                 .build();
     }
 
-    private static BigDecimal computeAnnuity(BigDecimal principal, BigDecimal r, int n) {
-        if (r.signum() == 0) {
-            return MoneyMath.money(principal.divide(BigDecimal.valueOf(n), MoneyMath.MC));
+    private static BigDecimal computeAnnuity(BigDecimal principal, BigDecimal monthlyRate, int termMonths) {
+        if (monthlyRate.signum() == 0) {
+            return MoneyMath.money(principal.divide(BigDecimal.valueOf(termMonths), MoneyMath.RATE_MATH));
         }
-        BigDecimal onePlusR = BigDecimal.ONE.add(r);
-        BigDecimal factor = onePlusR.pow(n, MoneyMath.MC);
-        BigDecimal denom = BigDecimal.ONE.subtract(BigDecimal.ONE.divide(factor, MoneyMath.MC));
-        return MoneyMath.money(principal.multiply(r, MoneyMath.MC).divide(denom, MoneyMath.MC));
+        BigDecimal onePlusRate = BigDecimal.ONE.add(monthlyRate);
+        BigDecimal factor = onePlusRate.pow(termMonths, MoneyMath.RATE_MATH);
+        BigDecimal denominator = BigDecimal.ONE.subtract(BigDecimal.ONE.divide(factor, MoneyMath.RATE_MATH));
+        return MoneyMath.money(principal.multiply(monthlyRate, MoneyMath.RATE_MATH).divide(denominator, MoneyMath.RATE_MATH));
     }
 }

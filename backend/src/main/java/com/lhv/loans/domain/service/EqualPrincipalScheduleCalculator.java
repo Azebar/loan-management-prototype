@@ -21,21 +21,21 @@ public class EqualPrincipalScheduleCalculator implements RepaymentScheduleCalcul
     @Override
     public RepaymentSchedule calculate(Loan loan) {
         BigDecimal principal = loan.amount();
-        int n = loan.termMonths();
-        BigDecimal r = MoneyMath.monthlyRate(loan.annualInterestRatePercent());
-        BigDecimal flatPrincipal = MoneyMath.money(principal.divide(BigDecimal.valueOf(n), MoneyMath.MC));
+        int termMonths = loan.termMonths();
+        BigDecimal monthlyRate = MoneyMath.monthlyRate(loan.annualInterestRatePercent());
+        BigDecimal flatPrincipal = MoneyMath.money(principal.divide(BigDecimal.valueOf(termMonths), MoneyMath.RATE_MATH));
 
-        List<ScheduleInstallment> installments = new ArrayList<>(n);
+        List<ScheduleInstallment> installments = new ArrayList<>(termMonths);
         BigDecimal balance = principal;
         BigDecimal totalInterest = BigDecimal.ZERO;
         BigDecimal totalPrincipal = BigDecimal.ZERO;
         BigDecimal totalPaid = BigDecimal.ZERO;
         LocalDate dueDate = loan.startDate();
 
-        for (int i = 1; i <= n; i++) {
+        for (int period = 1; period <= termMonths; period++) {
             dueDate = dueDate.plusMonths(1);
-            BigDecimal interest = MoneyMath.money(balance.multiply(r, MoneyMath.MC));
-            BigDecimal principalPart = (i == n) ? balance : flatPrincipal;
+            BigDecimal interest = MoneyMath.money(balance.multiply(monthlyRate, MoneyMath.RATE_MATH));
+            BigDecimal principalPart = (period == termMonths) ? balance : flatPrincipal;
             BigDecimal payment = MoneyMath.money(principalPart.add(interest));
             balance = balance.subtract(principalPart);
 
@@ -44,7 +44,7 @@ public class EqualPrincipalScheduleCalculator implements RepaymentScheduleCalcul
             totalPaid = totalPaid.add(payment);
 
             installments.add(ScheduleInstallment.builder()
-                    .periodNumber(i)
+                    .periodNumber(period)
                     .dueDate(dueDate)
                     .principalAmount(principalPart)
                     .interestAmount(interest)
