@@ -18,7 +18,7 @@ hs_err_pid*
 .project
 .settings/
 
-# --- Node / Vite ---
+# --- Node / Vite / TypeScript ---
 node_modules/
 dist/
 .cache/
@@ -26,6 +26,7 @@ dist/
 *.local
 .eslintcache
 .vite/
+*.tsbuildinfo
 
 # --- OS ---
 .DS_Store
