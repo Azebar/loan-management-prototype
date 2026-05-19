@@ -117,22 +117,16 @@ docker compose down -v        # tear down INCLUDING the postgres volume
       via repo-local `git config`, the global work identity is untouched)
 - [x] End-to-end smoke test against a real Postgres (a 240-mo €150k annuity
       @ 4.25% gives €928.85/mo and amortizes to 0.00)
+- [x] Pushed to GitHub at https://github.com/Azebar/loan-management-prototype
+      via HTTPS + a classic PAT (the `osxkeychain` helper is configured
+      globally but its binary is missing under Homebrew git, so credentials
+      aren't cached on this machine; that's a known wart, not a regression).
 
 ## What's left
 
-- [ ] **Push to personal GitHub.** No remote is configured. `gh` CLI is not
-      installed locally, so the canonical flow is:
-      ```bash
-      # 1. create empty repo on github.com (no README, no .gitignore, no license)
-      # 2. then:
-      cd ~/loan-management-prototype
-      git remote add origin git@github.com:<username>/loan-management-prototype.git
-      git push -u origin main
-      ```
-      The repo name to use is `loan-management-prototype` per the user's
-      choice in the original kickoff.
+The brief is fully delivered. Anything below is a nice-to-have, not required.
 
-### Nice-to-haves (not required by the brief)
+### Nice-to-haves
 - PDF export of the schedule (would require adding e.g. OpenPDF; CSV already
   satisfies the brief's "export" optional requirement).
 - Integration tests with Testcontainers Postgres for the persistence adapter
