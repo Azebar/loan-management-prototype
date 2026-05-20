@@ -61,15 +61,25 @@ across layers.** That's the whole point of the structure.
 - Annual rate is stored as a **percent** (e.g. `5.25` = 5.25%), not a fraction.
 
 ### Schedule calculators (`domain.service`)
-- New repayment models are added by creating a new `@Component implements
-  RepaymentScheduleCalculator` and declaring its `supports()` enum value.
+- New repayment models are added by creating a new `@Component` that
+  **extends `AbstractRepaymentScheduleCalculator`**, declares its
+  `supports()` enum value, and overrides `formulaFor(...)` to return a
+  `PeriodFormula` lambda. The base class owns the per-period loop, totals
+  accumulation, installment building, and the `RepaymentSchedule` assembly
+  — subclasses contribute only the per-period interest + principal math.
+- The `PeriodFormula` lambda is created once per `calculate(loan)` call, so
+  it can close over precomputed values (e.g. the annuity payment, the flat
+  principal share, the constant bullet interest) without re-deriving them
+  every iteration.
 - **Do not** modify `RepaymentScheduleService` to add a `switch` or `if` chain
   — it auto-discovers calculators by their `supports()` value.
 - Invariants every calculator MUST uphold (cover in tests):
   - `totalPrincipal == loan.amount()` (full amortization)
   - `totalPaid == totalPrincipal + totalInterest`
   - Last installment's `remainingBalance` is `0.00`
-  - The final installment absorbs rounding residue.
+  - The final installment absorbs rounding residue (the base class passes
+    `isFinalPeriod = true` for the last period — use it to return `balance`
+    as the principal share).
 
 ### Time
 - Inject `Clock` (see `ClockConfig`). **Never** call `Instant.now()`,
@@ -144,7 +154,11 @@ docker compose down -v        # tear down INCLUDING the postgres volume
 - [x] Lombok adopted across backend: `@Builder` on every record + `LoanEntity`,
       `@Getter` / generated constructors on `LoanEntity`,
       `@RequiredArgsConstructor` on Spring components; `Loan.withChanges`
-      replaced by `toBuilder()`
+      replaced by `toBuilder()`; mappers (`LoanWebMapper`, `LoanEntityMapper`)
+      use `@UtilityClass`
+- [x] Calculator scaffolding extracted to
+      `AbstractRepaymentScheduleCalculator` (template method + `PeriodFormula`
+      lambda); each strategy now contributes only its per-period math
 - [x] Unit tests for all three calculators (textbook values + invariants),
       9 tests pass
 - [x] React + TS frontend: create / edit / delete / list loans, schedule view,

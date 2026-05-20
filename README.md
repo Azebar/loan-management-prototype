@@ -69,6 +69,13 @@ and lets the storage choice change without touching the domain.
 * **A `Map<ScheduleType, Calculator>` registry** is auto-wired by Spring from
   every `@Component` that implements `RepaymentScheduleCalculator`. Adding a new
   repayment model is one new class, no `if`/`switch`.
+* **Template method on `AbstractRepaymentScheduleCalculator`** owns the loop,
+  totals accumulation, rounding, and `RepaymentSchedule` assembly. Each
+  concrete calculator (annuity / equal-principal / bullet) contributes only a
+  `PeriodFormula` lambda that maps `(balance, isFinalPeriod) → (interest,
+  principalShare)`. The strategy lambda closes over any per-loan
+  precomputation (annuity payment, flat principal, constant bullet interest),
+  so it's evaluated once per loan, not per period.
 * **Flyway-managed schema** so the DB state is reproducible from a clean
   Postgres volume.
 * **Validation at the edge only** — `@Valid` + Bean Validation on the request

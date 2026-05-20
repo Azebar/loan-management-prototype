@@ -1,17 +1,11 @@
 package com.lhv.loans.domain.service;
 
-import com.lhv.loans.domain.model.Loan;
-import com.lhv.loans.domain.model.RepaymentSchedule;
-import com.lhv.loans.domain.model.ScheduleInstallment;
 import com.lhv.loans.domain.model.ScheduleType;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AnnuityScheduleCalculator implements RepaymentScheduleCalculator {
+public class AnnuityScheduleCalculator extends AbstractRepaymentScheduleCalculator {
 
     @Override
     public ScheduleType supports() {
@@ -19,60 +13,19 @@ public class AnnuityScheduleCalculator implements RepaymentScheduleCalculator {
     }
 
     @Override
-    public RepaymentSchedule calculate(Loan loan) {
-        BigDecimal principal = loan.amount();
-        int termMonths = loan.termMonths();
-        BigDecimal monthlyRate = MoneyMath.monthlyRate(loan.annualInterestRatePercent());
-
+    protected PeriodFormula formulaFor(BigDecimal principal, int termMonths, BigDecimal monthlyRate) {
         BigDecimal annuityPayment = computeAnnuity(principal, monthlyRate, termMonths);
-
-        List<ScheduleInstallment> installments = new ArrayList<>(termMonths);
-        BigDecimal balance = principal;
-        BigDecimal totalInterest = BigDecimal.ZERO;
-        BigDecimal totalPrincipal = BigDecimal.ZERO;
-        BigDecimal totalPaid = BigDecimal.ZERO;
-        LocalDate dueDate = loan.startDate();
-
-        for (int period = 1; period <= termMonths; period++) {
-            dueDate = dueDate.plusMonths(1);
+        return (balance, isFinalPeriod) -> {
             BigDecimal interest = MoneyMath.money(balance.multiply(monthlyRate, MoneyMath.RATE_MATH));
-            BigDecimal principalPart;
-            BigDecimal payment;
-
-            if (period == termMonths) {
-                principalPart = balance;
-                payment = MoneyMath.money(principalPart.add(interest));
-            } else {
-                principalPart = MoneyMath.money(annuityPayment.subtract(interest));
-                if (principalPart.compareTo(balance) > 0) {
-                    principalPart = balance;
-                }
-                payment = MoneyMath.money(principalPart.add(interest));
+            if (isFinalPeriod) {
+                return new InstallmentParts(interest, balance);
             }
-
-            balance = balance.subtract(principalPart);
-            totalPrincipal = totalPrincipal.add(principalPart);
-            totalInterest = totalInterest.add(interest);
-            totalPaid = totalPaid.add(payment);
-
-            installments.add(ScheduleInstallment.builder()
-                    .periodNumber(period)
-                    .dueDate(dueDate)
-                    .principalAmount(principalPart)
-                    .interestAmount(interest)
-                    .totalPayment(payment)
-                    .remainingBalance(MoneyMath.money(balance))
-                    .build());
-        }
-
-        return RepaymentSchedule.builder()
-                .loanId(loan.id())
-                .scheduleType(ScheduleType.ANNUITY)
-                .installments(installments)
-                .totalPrincipal(MoneyMath.money(totalPrincipal))
-                .totalInterest(MoneyMath.money(totalInterest))
-                .totalPaid(MoneyMath.money(totalPaid))
-                .build();
+            BigDecimal principalShare = MoneyMath.money(annuityPayment.subtract(interest));
+            if (principalShare.compareTo(balance) > 0) {
+                principalShare = balance;
+            }
+            return new InstallmentParts(interest, principalShare);
+        };
     }
 
     private static BigDecimal computeAnnuity(BigDecimal principal, BigDecimal monthlyRate, int termMonths) {
